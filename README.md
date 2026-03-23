@@ -51,11 +51,26 @@ Configure the application using environment variables or a `.env` file:
 | `PORT` | Server port | `3000` |
 | `HOST` | Server host | `0.0.0.0` |
 
+## Project Structure
+
+```
+fastssh/
+├── src/
+│   └── server.js        # Express + WebSocket + SSH2 server
+├── public/
+│   ├── index.html       # Main HTML page
+│   ├── style.css        # UI styles (dark theme)
+│   └── app.js           # Frontend terminal logic
+├── .env.example         # Environment variable template
+├── package.json
+└── README.md
+```
+
 ## Tech Stack
 
-- **Runtime:** Node.js
-- **Protocol:** SSH2 + WebSocket
-- **Terminal:** xterm.js
+- **Runtime:** Node.js + Express
+- **Protocol:** SSH2 + WebSocket (ws)
+- **Terminal:** xterm.js with fit & web-links addons
 - **Session management:** tmux
 
 ## License

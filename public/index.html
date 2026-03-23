@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FastSSH</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Connection Panel -->
+    <div id="connect-panel">
+      <div class="panel-card">
+        <h1>FastSSH</h1>
+        <p class="subtitle">Web-based SSH with tmux session management</p>
+
+        <!-- Saved Connections -->
+        <div id="saved-connections"></div>
+
+        <form id="connect-form">
+          <div class="form-row">
+            <div class="form-group flex-grow">
+              <label for="host">Host</label>
+              <input type="text" id="host" placeholder="192.168.1.100" required>
+            </div>
+            <div class="form-group" style="width: 100px;">
+              <label for="port">Port</label>
+              <input type="number" id="port" value="22">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="root" required>
+          </div>
+
+          <div class="form-group">
+            <label>Authentication</label>
+            <div class="auth-tabs">
+              <button type="button" class="auth-tab active" data-auth="password">Password</button>
+              <button type="button" class="auth-tab" data-auth="key">Private Key</button>
+            </div>
+          </div>
+
+          <div class="form-group" id="password-group">
+            <input type="password" id="password" placeholder="Password">
+          </div>
+
+          <div class="form-group hidden" id="key-group">
+            <textarea id="privateKey" rows="4" placeholder="Paste private key here..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="tmux-session">tmux Session (optional)</label>
+            <div class="session-row">
+              <input type="text" id="tmux-session" placeholder="my-session">
+              <button type="button" id="btn-list-sessions" class="btn btn-secondary" title="List sessions">List</button>
+            </div>
+          </div>
+
+          <div id="sessions-list" class="hidden"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="btn-connect">Connect</button>
+            <button type="button" class="btn btn-secondary" id="btn-save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <div id="terminal-container" class="hidden">
+      <div id="terminal-header">
+        <span id="connection-info"></span>
+        <div class="header-actions">
+          <button id="btn-disconnect" class="btn btn-small btn-danger">Disconnect</button>
+        </div>
+      </div>
+      <div id="terminal"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

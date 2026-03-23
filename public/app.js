@@ -6,11 +6,120 @@
   const btnConnect = $('#btn-connect');
   const btnDisconnect = $('#btn-disconnect');
   const btnListSessions = $('#btn-list-sessions');
+  const btnSave = $('#btn-save');
   const sessionsList = $('#sessions-list');
+  const savedConnectionsEl = $('#saved-connections');
 
   let term = null;
   let fitAddon = null;
   let ws = null;
+
+  const STORAGE_KEY = 'fastssh_connections';
+  const LAST_USED_KEY = 'fastssh_last_used';
+
+  // --- Saved Connections (localStorage) ---
+
+  function getSavedConnections() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function saveConnections(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function saveConnection(params) {
+    const list = getSavedConnections();
+    const key = `${params.username}@${params.host}:${params.port}`;
+    const existing = list.findIndex(c => `${c.username}@${c.host}:${c.port}` === key);
+    const entry = { ...params, savedAt: Date.now() };
+    if (existing >= 0) {
+      list[existing] = entry;
+    } else {
+      list.unshift(entry);
+    }
+    saveConnections(list);
+    renderSavedConnections();
+  }
+
+  function deleteConnection(index) {
+    const list = getSavedConnections();
+    list.splice(index, 1);
+    saveConnections(list);
+    renderSavedConnections();
+  }
+
+  function fillForm(conn) {
+    $('#host').value = conn.host || '';
+    $('#port').value = conn.port || 22;
+    $('#username').value = conn.username || '';
+    $('#password').value = conn.password || '';
+    $('#privateKey').value = conn.privateKey || '';
+    $('#tmux-session').value = conn.tmuxSession || '';
+
+    // Switch auth tab
+    const authMethod = conn.privateKey ? 'key' : 'password';
+    document.querySelectorAll('.auth-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.auth === authMethod);
+    });
+    $('#password-group').classList.toggle('hidden', authMethod !== 'password');
+    $('#key-group').classList.toggle('hidden', authMethod !== 'key');
+  }
+
+  function setLastUsed(params) {
+    localStorage.setItem(LAST_USED_KEY, JSON.stringify(params));
+  }
+
+  function renderSavedConnections() {
+    const list = getSavedConnections();
+    if (list.length === 0) {
+      savedConnectionsEl.innerHTML = '';
+      return;
+    }
+    savedConnectionsEl.innerHTML = `
+      <div class="saved-label">Saved Connections</div>
+      ${list.map((c, i) => `
+        <div class="saved-item" data-index="${i}">
+          <div class="saved-item-info">
+            <div class="saved-item-name">${escapeHtml(c.username)}@${escapeHtml(c.host)}</div>
+            <div class="saved-item-detail">:${c.port}${c.tmuxSession ? ' / tmux: ' + escapeHtml(c.tmuxSession) : ''}</div>
+          </div>
+          <button class="saved-item-delete" data-index="${i}" title="Delete">&times;</button>
+        </div>
+      `).join('')}
+    `;
+
+    // Click to fill form
+    savedConnectionsEl.querySelectorAll('.saved-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target.classList.contains('saved-item-delete')) return;
+        fillForm(list[parseInt(el.dataset.index)]);
+      });
+    });
+
+    // Delete button
+    savedConnectionsEl.querySelectorAll('.saved-item-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteConnection(parseInt(btn.dataset.index));
+      });
+    });
+  }
+
+  // Save button
+  btnSave.addEventListener('click', () => {
+    const params = getConnParams();
+    if (!params.host || !params.username) return;
+    saveConnection(params);
+  });
+
+  // Load saved connections and auto-fill last used on startup
+  renderSavedConnections();
+  try {
+    const last = JSON.parse(localStorage.getItem(LAST_USED_KEY));
+    if (last) fillForm(last);
+  } catch {}
 
   // Auth tab switching
   document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -107,6 +216,7 @@
       const msg = JSON.parse(event.data);
 
       if (msg.type === 'connected') {
+        setLastUsed(params);
         showTerminal(params);
       } else if (msg.type === 'data') {
         const bytes = atob(msg.data);

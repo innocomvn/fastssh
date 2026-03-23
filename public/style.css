@@ -47,6 +47,8 @@ body {
   padding: 32px;
   width: 100%;
   max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .panel-card h1 {
@@ -194,8 +196,17 @@ textarea {
   transition: all 0.2s;
 }
 
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-actions .btn-primary {
+  flex: 1;
+}
+
 .btn-primary {
-  width: 100%;
   background: var(--primary);
   color: #fff;
 }
@@ -258,6 +269,76 @@ textarea {
 
 .hidden {
   display: none !important;
+}
+
+/* Saved Connections */
+#saved-connections {
+  margin-bottom: 16px;
+}
+
+#saved-connections:empty {
+  display: none;
+}
+
+.saved-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.saved-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  gap: 10px;
+}
+
+.saved-item:hover {
+  border-color: var(--primary);
+}
+
+.saved-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.saved-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-item-detail {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.saved-item-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.saved-item-delete:hover {
+  color: var(--danger);
+  background: rgba(248, 81, 73, 0.1);
 }
 
 /* Status message */
